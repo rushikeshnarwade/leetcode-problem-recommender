@@ -22,6 +22,7 @@ A personalized LeetCode problem recommendation system that helps users discover 
 ### 📊 **LeetCode Integration**
 - **Username Sync**: Connect your LeetCode profile
 - **Auto-sync Solved Problems**: Fetch your actual progress from LeetCode
+- **Contest Rating Sync**: Fetches your LeetCode contest rating.
 - **Progress Tracking**: Visual indicators for solved/unsolved problems
 - **Manual Toggle**: Mark problems as solved/unsolved directly
 
@@ -40,7 +41,7 @@ A personalized LeetCode problem recommendation system that helps users discover 
 ## 💻 Tech Stack
 
 *   **Frontend:** Next.js, React, TypeScript, Tailwind CSS
-*   **Backend:** Firebase (Authentication, Firestore, Cloud Functions)
+*   **Backend:** Firebase (Authentication, Firestore, Cloud Functions), Next.js API Routes
 *   **APIs:** LeetCode API, Zerotrac API
 
 ## 🚀 Quick Start
@@ -52,7 +53,7 @@ A personalized LeetCode problem recommendation system that helps users discover 
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/leetcode-problem-recommender.git
+git clone https://github.com/rushikeshnarwade/leetcode-problem-recommender.git
 cd leetcode-problem-recommender
 ```
 
@@ -123,7 +124,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
 
 1. **Problem Sync**: Cloud Functions fetch problems from LeetCode and ratings from Zerotrac
 2. **User Authentication**: Firebase Auth manages user sessions
-3. **Profile Sync**: Users connect LeetCode profiles to import solved problems
+3. **Profile Sync**: Users connect LeetCode profiles to import solved problems and contest ratings.
 4. **Filtering**: Frontend applies user preferences to recommend relevant problems
 5. **Progress Tracking**: User actions update Firestore and refresh recommendations
 
@@ -140,6 +141,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
 - `syncZerotrac.js`: Fetches problem ratings from Zerotrac
 - `problemService.ts`: Advanced filtering and search logic
 - `leetcodeService.ts`: User data integration with LeetCode
+- `api/leetcode/route.ts`: Next.js API route to proxy LeetCode GraphQL requests.
 
 ## 🔒 Security & Privacy
 
