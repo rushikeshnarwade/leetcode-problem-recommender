@@ -1,15 +1,20 @@
 # Dependencies
 node_modules/
-*/node_modules/
+**/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # Production builds
-*/build/
-*/.next/
-*/dist/
-*/out/
+build/
+**/build/
+.next/
+**/.next/
+dist/
+**/dist/
+out/
+**/out/
 
 # Environment variables
 .env
@@ -18,10 +23,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Next.js
-frontend/.next/
-frontend/out/
-frontend/.swc/
+# Next.js specific
+.swc/
+**/.swc/
 
 # Firebase
 firebase-debug.log
@@ -100,6 +104,7 @@ Thumbs.db
 # Firebase Service Account Keys (NEVER commit these)
 **/serviceAccountKey.json
 **/service-account-*.json
+**/firebase-service-account-*.json
 
 # Private configuration files
 config/private.js
@@ -111,3 +116,14 @@ config/private.json
 
 # TypeScript cache
 *.tsbuildinfo
+
+# Claude IDE files
+.claude/
+
+# Scripts temporary files
+scripts/*.json
+!scripts/package.json
+
+# IDE files
+.vscode/settings.json
+*.code-workspace

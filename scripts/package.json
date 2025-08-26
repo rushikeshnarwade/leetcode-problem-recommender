@@ -1,0 +1,24 @@
+{
+  "name": "leetcode-data-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Data management scripts for LeetCode Problem Recommender",
+  "scripts": {
+    "populate": "node populate-problems.js",
+    "setup": "npm install firebase-admin",
+    "validate": "node -e \"console.log('Scripts ready!')\""
+  },
+  "devDependencies": {
+    "firebase-admin": "^13.4.0"
+  },
+  "keywords": [
+    "leetcode",
+    "data-management",
+    "firebase"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.11.0"
+  }
+}

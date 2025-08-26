@@ -1,0 +1,20 @@
+{
+  "name": "leetcode-deployment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deployment configuration and scripts for LeetCode Problem Recommender",
+  "scripts": {
+    "deploy": "firebase deploy --only hosting",
+    "deploy-rules": "firebase deploy --only firestore:rules,firestore:indexes",
+    "deploy-full": "firebase deploy",
+    "init": "firebase init",
+    "serve": "firebase serve",
+    "login": "firebase login"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  },
+  "keywords": ["firebase", "deployment", "hosting"],
+  "author": "",
+  "license": "MIT"
+}

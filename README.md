@@ -1,54 +1,81 @@
 # 🎯 LeetCode Problem Recommender
 
-A personalized LeetCode problem recommendation system that helps users discover problems based on their skill level, solved problems, and preferences. Built with Next.js, Firebase, and integrated with LeetCode and Zerotrac APIs.
+An intelligent problem recommendation system that helps developers practice coding problems efficiently with personalized suggestions, comprehensive filtering, and progress tracking. Features a complete database of 3,662+ LeetCode problems with client-side filtering for blazing-fast performance.
 
 ![LeetCode Recommender](https://img.shields.io/badge/LeetCode-Recommender-orange)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
-![Firebase](https://img.shields.io/badge/Firebase-orange)
 ![TypeScript](https://img.shields.io/badge/TypeScript-blue)
+![Problems](https://img.shields.io/badge/Problems-3662+-brightgreen)
 
-## 📸 Screenshots
+## 🚀 **Live Demo**
 
-*Add screenshots of the application here.*
+**🌐 [https://leetcode-problem-recommeder.web.app](https://leetcode-problem-recommeder.web.app)**
 
 ## ✨ Features
 
-### 🎛️ **Smart Problem Filtering**
-- **Rating-based Recommendations**: Problems filtered by user rating ±50 (customizable)
-- **Difficulty Filters**: Easy, Medium, Hard, or All
-- **Solved Status Filters**: View only solved, unsolved, or all problems
-- **Real-time Updates**: Instant filtering as you adjust preferences
+### 🎯 **Smart Problem Discovery**
+- **3,662+ Problems**: Complete LeetCode database with real-time API updates
+- **72+ Tags**: Comprehensive filtering by Array, Dynamic Programming, Graph Theory, etc.
+- **Advanced Search**: Find problems by title, tags, or keywords instantly
+- **Intelligent Filtering**: Rating ranges, difficulty levels, and solved status
+- **Client-Side Performance**: No backend queries - instant results
 
-### 📊 **LeetCode Integration**
-- **Username Sync**: Connect your LeetCode profile
-- **Auto-sync Solved Problems**: Fetch your actual progress from LeetCode
-- **Contest Rating Sync**: Fetches your LeetCode contest rating.
-- **Progress Tracking**: Visual indicators for solved/unsolved problems
-- **Manual Toggle**: Mark problems as solved/unsolved directly
+### 🔍 **Powerful Filtering System**
+- **Tag-Based Filtering**: Select multiple tags for precise problem discovery  
+- **Smart Search Bar**: Real-time search across titles and tags
+- **Rating-Based Recommendations**: Customizable difficulty ranges
+- **Solved Status Tracking**: Filter by solved/unsolved problems
+- **Mobile-Optimized Interface**: Perfect experience on all devices
 
-### 🏠 **Personalized Homepage**
-- **Curated Sections**: Daily Challenge, Weekly Focus, Challenge Zone
-- **Custom Filters**: Adjustable rating range and difficulty preferences
-- **Interactive Problem Cards**: One-click solved/unsolved toggle
-- **Progress Visualization**: Track your solving journey
+### 🎨 **Modern User Experience**
+- **Balanced Dark Theme**: Reduced eye strain with professional aesthetics
+- **Responsive Design**: Optimized for desktop, tablet, and mobile
+- **Touch-Friendly**: 44px+ touch targets for mobile accessibility
+- **Fast Performance**: Client-side filtering for instant results
+- **Clean Interface**: Minimal, developer-focused design
 
-### 👤 **User Profile Management**
-- **Rating Management**: Set and update your competitive programming rating
-- **LeetCode Username**: Link your LeetCode profile for automatic sync
-- **Progress Statistics**: View solved problem counts and activity
-- **Settings**: Customize app preferences and account security
+### 🔗 **LeetCode Integration** 
+- **Direct Problem Links**: One-click access to solve problems on LeetCode
+- **Real Data**: Authentic acceptance rates, difficulty levels, and tags
+- **Progress Tracking**: Mark problems as solved locally
+- **Profile Sync**: Optional LeetCode account integration
 
 ## 💻 Tech Stack
 
-*   **Frontend:** Next.js, React, TypeScript, Tailwind CSS
-*   **Backend:** Firebase (Authentication, Firestore, Cloud Functions), Next.js API Routes
-*   **APIs:** LeetCode API, Zerotrac API
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Data**: Local JSON database (3,662+ problems)
+- **Authentication**: Firebase Auth (optional)
+- **Deployment**: Firebase Hosting
+- **APIs**: LeetCode GraphQL API for data fetching
+
+## 📁 Project Structure
+
+```
+leetcode/
+├── app/                    # Next.js application
+│   ├── src/
+│   │   ├── app/           # Next.js app directory (pages)
+│   │   ├── components/    # React components
+│   │   ├── contexts/      # React contexts
+│   │   ├── data/          # Problems database (3,662+ problems)
+│   │   ├── lib/           # Utilities & services
+│   │   └── types/         # TypeScript definitions
+│   ├── package.json       # Dependencies
+│   └── tailwind.config.ts # Tailwind configuration
+├── deployment/             # Deployment configuration
+│   ├── firebase.json      # Firebase hosting config
+│   └── deploy.bat         # Deployment script
+├── scripts/               # Utility scripts
+│   ├── fetch-all-problems.js  # LeetCode API fetcher
+│   └── package.json       # Scripts dependencies
+├── docs/                  # Documentation
+└── README.md             # This file
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- Firebase CLI
 - Git
 
 ### 1. Clone the Repository
@@ -57,59 +84,50 @@ git clone https://github.com/rushikeshnarwade/leetcode-problem-recommender.git
 cd leetcode-problem-recommender
 ```
 
-### 2. Setup Backend (Firebase)
+### 2. Install Dependencies
 ```bash
-# Install Firebase tools
-npm install -g firebase-tools
-
-# Login to Firebase
-firebase login
-
-# Initialize Firebase
-firebase init
-
-# Start Firebase emulators
-firebase emulators:start
-```
-
-### 3. Setup Frontend (Next.js)
-```bash
-# Navigate to frontend
-cd frontend
+# Navigate to app directory
+cd app
 
 # Install dependencies
 npm install
+```
 
-# Start development server
+### 3. Run Development Server
+```bash
 npm run dev
 ```
 
-### 4. Initialize Data
+### 4. Access Application
+- **Local Development**: http://localhost:3000
+- **Live Demo**: https://leetcode-problem-recommeder.web.app
 
-To sync the problems from LeetCode and ratings from Zerotrac, you need to run the following commands in a separate terminal:
+## 🔄 Update Problems Database
+
+The problems database can be updated with the latest LeetCode problems:
 
 ```bash
-# Sync LeetCode problems
-curl http://127.0.0.1:5001/leetcode-problem-recommeder/us-central1/syncLeetcodeProblemsHttp
+# Navigate to scripts directory
+cd scripts
 
-# Sync Zerotrac ratings
-curl http://127.0.0.1:5001/leetcode-problem-recommeder/us-central1/syncZerotracRatingsHttp
+# Install script dependencies
+npm install
+
+# Fetch all problems from LeetCode API
+node fetch-all-problems.js
 ```
 
-### 5. Access Application
-- **Frontend**: http://localhost:3000
-- **Firebase Emulator UI**: http://127.0.0.1:4000
+This will update `app/src/data/problems.json` with the latest problems, tags, and metadata.
 
 ## 🔧 Configuration
 
-### Firebase Setup
-1.  Create a new project on the [Firebase Console](https://console.firebase.google.com/).
-2.  Add a web app to your project.
-3.  Copy the Firebase config object from your project settings.
-4.  Replace the placeholder config in `frontend/src/lib/firebase.ts` with your project's config.
+### Firebase Setup (Optional)
+Firebase is only needed for user authentication. The app works fully without it.
 
-### Environment Variables
-Create a `.env.local` file in the `frontend` directory and add your Firebase project configuration:
+1. Create a new project on the [Firebase Console](https://console.firebase.google.com/)
+2. Add a web app to your project
+3. Copy the Firebase config object from your project settings
+4. Create `.env.local` file in `app` directory:
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key"
@@ -120,49 +138,61 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-messaging-sender-id"
 NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
 ```
 
-## 📊 Data Flow
+## 📊 Architecture
 
-1. **Problem Sync**: Cloud Functions fetch problems from LeetCode and ratings from Zerotrac
-2. **User Authentication**: Firebase Auth manages user sessions
-3. **Profile Sync**: Users connect LeetCode profiles to import solved problems and contest ratings.
-4. **Filtering**: Frontend applies user preferences to recommend relevant problems
-5. **Progress Tracking**: User actions update Firestore and refresh recommendations
+### Data Flow
+1. **Problems Database**: 3,662+ problems stored locally in JSON format
+2. **Client-Side Filtering**: All filtering happens in the browser for instant results  
+3. **Search & Tags**: Real-time search across titles and 72+ tag categories
+4. **Progress Tracking**: Local storage for solved problems (Firebase optional)
+5. **LeetCode Integration**: Direct links to problems on LeetCode platform
+
+### Key Features
+- **No Backend Dependencies**: Works completely offline after initial load
+- **Fast Performance**: Client-side filtering for instant results
+- **Mobile Optimized**: Responsive design with touch-friendly interface
+- **Comprehensive Database**: All LeetCode problems with authentic metadata
 
 ## 🎨 Key Components
 
-### Frontend Components
-- `ProblemCard`: Interactive problem display with solved toggle
-- `ProblemFilters`: Advanced filtering controls
-- `CuratedSection`: Personalized problem collections
-- `AuthContext`: User session management
+### Core Components
+- **`ProblemCard`**: Interactive problem display with tags and solved toggle
+- **`ProblemFilters`**: Advanced filtering with search, tags, and preferences  
+- **`CuratedSection`**: Personalized problem recommendations
+- **`AuthContext`**: Optional user session management
 
-### Backend Services
-- `syncLeetcode.js`: Fetches problems from LeetCode API
-- `syncZerotrac.js`: Fetches problem ratings from Zerotrac
-- `problemService.ts`: Advanced filtering and search logic
-- `leetcodeService.ts`: User data integration with LeetCode
-- `api/leetcode/route.ts`: Next.js API route to proxy LeetCode GraphQL requests.
-
-## 🔒 Security & Privacy
-
-- Firebase Authentication for secure user sessions
-- Firestore security rules prevent unauthorized access
-- No sensitive data stored in frontend code
-- User LeetCode data fetched securely through backend APIs
+### Services & Utilities
+- **`problemService.ts`**: Client-side filtering and search logic
+- **`fetch-all-problems.js`**: LeetCode API data fetcher script
+- **`problems.json`**: Comprehensive problems database (3,662+ problems)
 
 ## 🚀 Deployment
 
-### Frontend (Vercel/Netlify)
+### Automatic Deployment
+The project includes a deployment script for Firebase Hosting:
+
 ```bash
-cd frontend
+# Navigate to deployment directory
+cd deployment
+
+# Run deployment script (Windows)
+.\deploy.bat
+
+# For manual deployment
 npm run build
-# Deploy to your preferred platform
+firebase deploy
 ```
 
-### Backend (Firebase)
+### Alternative Platforms
 ```bash
-cd firebase
-firebase deploy --only functions,firestore,hosting
+cd app
+npm run build
+
+# Deploy to Vercel
+vercel --prod
+
+# Deploy to Netlify  
+netlify deploy --prod --dir=build
 ```
 
 ## 🤝 Contributing
