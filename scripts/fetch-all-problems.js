@@ -71,11 +71,11 @@ function makeGraphQLRequest(query, variables) {
 
     const req = https.request(options, (res) => {
       let data = '';
-      
+
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
+
       res.on('end', () => {
         try {
           const response = JSON.parse(data);
@@ -95,27 +95,81 @@ function makeGraphQLRequest(query, variables) {
   });
 }
 
-// Function to estimate zerotrac rating based on difficulty and acceptance rate
+// Function to estimate zerotrac rating based on difficulty and acceptance rate (fallback)
 function estimateZerotracRating(difficulty, acceptanceRate) {
   const baseRatings = {
     'Easy': 1000,
     'Medium': 1500,
     'Hard': 2000
   };
-  
+
   const base = baseRatings[difficulty] || 1500;
-  
+
   // Adjust based on acceptance rate (lower acceptance = higher rating)
   const acceptanceAdjustment = Math.round((0.5 - acceptanceRate) * 500);
-  
+
   return Math.max(800, Math.min(3500, base + acceptanceAdjustment));
+}
+
+// Function to fetch real Zerotrac ratings from their API
+function fetchZerotracRatings() {
+  return new Promise((resolve, reject) => {
+    console.log('📊 Fetching Zerotrac ratings...');
+
+    const options = {
+      hostname: 'zerotrac.github.io',
+      path: '/leetcode_problem_rating/data.json',
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        try {
+          const ratings = JSON.parse(data);
+          // Create a lookup map using TitleSlug
+          const ratingMap = new Map();
+          ratings.forEach(item => {
+            ratingMap.set(item.TitleSlug, {
+              rating: Math.round(item.Rating),
+              contestSlug: item.ContestSlug || null,
+              problemIndex: item.ProblemIndex || null
+            });
+          });
+          console.log(`✅ Fetched ${ratings.length} Zerotrac ratings`);
+          resolve(ratingMap);
+        } catch (error) {
+          console.warn('⚠️ Failed to parse Zerotrac ratings, will use estimates');
+          resolve(new Map());
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      console.warn('⚠️ Failed to fetch Zerotrac ratings:', error.message);
+      resolve(new Map()); // Return empty map, will use estimates
+    });
+
+    req.end();
+  });
 }
 
 // Function to fetch all problems
 async function fetchAllProblems() {
   console.log('🚀 Starting to fetch all LeetCode problems...');
-  
+
   try {
+    // First, fetch Zerotrac ratings
+    const zerotracRatings = await fetchZerotracRatings();
+
     const allProblems = [];
     let skip = 0;
     const limit = 100; // Fetch 100 problems at a time
@@ -123,7 +177,7 @@ async function fetchAllProblems() {
 
     do {
       console.log(`📡 Fetching problems ${skip + 1} to ${skip + limit}...`);
-      
+
       const variables = {
         categorySlug: "",
         skip: skip,
@@ -132,20 +186,21 @@ async function fetchAllProblems() {
       };
 
       const response = await makeGraphQLRequest(ALL_PROBLEMS_QUERY, variables);
-      
+
       if (!response.data || !response.data.problemsetQuestionList) {
         throw new Error('Invalid response structure from LeetCode API');
       }
 
       const data = response.data.problemsetQuestionList;
       total = data.total;
-      
+
       console.log(`✅ Received ${data.questions.length} problems (Total: ${total})`);
-      
+
       // Process and format the problems
       const formattedProblems = data.questions.map(problem => {
         const acceptanceRate = problem.acRate ? parseFloat(problem.acRate) / 100 : 0.5;
-        
+        const zerotracData = zerotracRatings.get(problem.titleSlug);
+
         return {
           id: parseInt(problem.frontendQuestionId),
           title: problem.title,
@@ -153,10 +208,10 @@ async function fetchAllProblems() {
           difficulty: problem.difficulty.toLowerCase(),
           acceptanceRate: acceptanceRate,
           isPremium: problem.paidOnly || false,
-          zerotracRating: estimateZerotracRating(problem.difficulty, acceptanceRate),
+          zerotracRating: zerotracData ? zerotracData.rating : estimateZerotracRating(problem.difficulty, acceptanceRate),
           tags: problem.topicTags ? problem.topicTags.map(tag => tag.name) : [],
-          contestSlug: null,
-          problemIndex: null
+          contestSlug: zerotracData ? zerotracData.contestSlug : null,
+          problemIndex: zerotracData ? zerotracData.problemIndex : null
         };
       });
 
@@ -169,13 +224,13 @@ async function fetchAllProblems() {
     } while (skip < total);
 
     console.log(`🎉 Successfully fetched ${allProblems.length} problems!`);
-    
+
     // Sort problems by ID
     allProblems.sort((a, b) => a.id - b.id);
 
     // Write to JSON file
     const outputPath = path.join(__dirname, '..', 'app', 'src', 'data', 'problems.json');
-    
+
     // Create directory if it doesn't exist
     const outputDir = path.dirname(outputPath);
     if (!fs.existsSync(outputDir)) {
@@ -183,42 +238,42 @@ async function fetchAllProblems() {
     }
 
     fs.writeFileSync(outputPath, JSON.stringify(allProblems, null, 2));
-    
+
     console.log(`💾 Saved ${allProblems.length} problems to: ${outputPath}`);
-    
+
     // Print some statistics
     const easyCount = allProblems.filter(p => p.difficulty === 'easy').length;
     const mediumCount = allProblems.filter(p => p.difficulty === 'medium').length;
     const hardCount = allProblems.filter(p => p.difficulty === 'hard').length;
     const premiumCount = allProblems.filter(p => p.isPremium).length;
-    
+
     console.log('\n📊 Statistics:');
     console.log(`   Easy: ${easyCount}`);
     console.log(`   Medium: ${mediumCount}`);
     console.log(`   Hard: ${hardCount}`);
     console.log(`   Premium: ${premiumCount}`);
     console.log(`   Free: ${allProblems.length - premiumCount}`);
-    
+
     // Get unique tags
     const allTags = new Set();
     allProblems.forEach(problem => {
       problem.tags.forEach(tag => allTags.add(tag));
     });
-    
+
     console.log(`   Unique Tags: ${allTags.size}`);
     console.log('   Top Tags:', Array.from(allTags).slice(0, 10).join(', '));
-    
+
     console.log('\n✅ Done! You can now use the updated problems database.');
-    
+
     return allProblems;
-    
+
   } catch (error) {
     console.error('❌ Error fetching problems:', error.message);
     console.error('\n🔧 Troubleshooting tips:');
     console.error('   1. Check your internet connection');
     console.error('   2. LeetCode might be rate limiting - try again later');
     console.error('   3. The API structure might have changed');
-    
+
     process.exit(1);
   }
 }
@@ -226,7 +281,7 @@ async function fetchAllProblems() {
 // Alternative function using the Alpha LeetCode API as backup
 async function fetchProblemsFromAlphaAPI() {
   console.log('🔄 Trying alternative Alpha LeetCode API...');
-  
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'alfa-leetcode-api.onrender.com',
@@ -239,15 +294,15 @@ async function fetchProblemsFromAlphaAPI() {
 
     const req = https.request(options, (res) => {
       let data = '';
-      
+
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
+
       res.on('end', () => {
         try {
           const problems = JSON.parse(data);
-          
+
           // Format the problems to match our structure
           const formattedProblems = problems.map(problem => ({
             id: problem.questionId || problem.id || 0,
@@ -261,7 +316,7 @@ async function fetchProblemsFromAlphaAPI() {
             contestSlug: null,
             problemIndex: null
           }));
-          
+
           resolve(formattedProblems);
         } catch (error) {
           reject(new Error('Failed to parse Alpha API response: ' + error.message));
@@ -281,19 +336,19 @@ async function fetchProblemsFromAlphaAPI() {
 if (require.main === module) {
   console.log('🎯 LeetCode Problems Fetcher');
   console.log('==========================\n');
-  
+
   fetchAllProblems()
     .catch(async (error) => {
       console.log('\n🔄 Primary API failed, trying backup...');
       try {
         const problems = await fetchProblemsFromAlphaAPI();
-        
+
         const outputPath = path.join(__dirname, '..', 'app', 'src', 'data', 'problems.json');
         fs.writeFileSync(outputPath, JSON.stringify(problems, null, 2));
-        
+
         console.log(`✅ Successfully fetched ${problems.length} problems using backup API!`);
         console.log(`💾 Saved to: ${outputPath}`);
-        
+
       } catch (backupError) {
         console.error('❌ Both APIs failed:', backupError.message);
         process.exit(1);

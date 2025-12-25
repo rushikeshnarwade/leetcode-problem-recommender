@@ -21,10 +21,11 @@ if (getApps().length === 0) {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Connect to emulators in development
+// Emulators disabled - using production Firebase
+// To use emulators, uncomment the code below and run: firebase emulators:start
+/*
 if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
   try {
-    // Connect to Auth emulator
     if (!(auth as any)._delegate?._config?.emulator) {
       connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
     }
@@ -33,7 +34,6 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
   }
   
   try {
-    // Connect to Firestore emulator
     if (!(db as any)._delegate?._settings?.host?.includes('127.0.0.1:8080')) {
       connectFirestoreEmulator(db, '127.0.0.1', 8080);
     }
@@ -41,5 +41,6 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     console.warn('Firestore emulator connection failed:', error);
   }
 }
+*/
 
 export { app };

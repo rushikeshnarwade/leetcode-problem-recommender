@@ -65,7 +65,7 @@ export default function Profile() {
         leetcodeUsername: formData.leetcodeUsername,
       });
       setEditing(false);
-      
+
       alert('Profile updated successfully!');
     } catch (error) {
       console.error('Error updating user data:', error);
@@ -86,10 +86,10 @@ export default function Profile() {
       const leetcodeContestData = await fetchLeetCodeContestData(formData.leetcodeUsername.trim());
       console.log('LeetCode Data received:', leetcodeData);
       console.log('LeetCode Contest Data received:', leetcodeContestData);
-      
+
       if (leetcodeData && leetcodeData.stats) {
         console.log('LeetCode stats object:', leetcodeData.stats);
-        
+
         const newStats = {
           totalSolved: leetcodeData.stats.totalSolved || 0,
           easySolved: leetcodeData.stats.easySolved || 0,
@@ -115,9 +115,9 @@ export default function Profile() {
         }
 
         console.log('Update data to be sent to Firestore:', updateData);
-        
+
         await updateDoc(doc(db, 'users', user.uid), updateData);
-        
+
         console.log('Firestore update successful');
 
         const newUserData: any = {
@@ -161,7 +161,7 @@ export default function Profile() {
     if (!userData || !userData.leetcodeStats) {
       return { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0, ranking: 0, contestRating: 0 };
     }
-    
+
     return {
       totalSolved: userData.leetcodeStats.totalSolved,
       easySolved: userData.leetcodeStats.easySolved,
@@ -173,6 +173,29 @@ export default function Profile() {
   };
 
   const stats = getProgressStats();
+
+  // Helper function to format Firestore timestamps
+  const formatDate = (date: any): string => {
+    if (!date) return 'Unknown';
+    try {
+      // Handle Firestore Timestamp objects
+      if (date.toDate && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleDateString();
+      }
+      // Handle seconds-based timestamp objects
+      if (date.seconds) {
+        return new Date(date.seconds * 1000).toLocaleDateString();
+      }
+      // Handle regular Date objects or ISO strings
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate.toLocaleDateString();
+      }
+      return 'Unknown';
+    } catch {
+      return 'Unknown';
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
@@ -197,7 +220,7 @@ export default function Profile() {
               </div>
               Basic Information
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-textSecondary mb-1 font-code">
@@ -244,8 +267,14 @@ export default function Profile() {
                   <button
                     onClick={handleSyncLeetCode}
                     disabled={syncing}
-                    className="mt-2 bg-success/20 text-success px-4 py-2 rounded-lg text-sm hover:bg-success/30 disabled:opacity-50 font-medium border border-success/30 transition-all duration-200"
+                    className="mt-2 bg-success/20 text-success px-4 py-2 rounded-lg text-sm hover:bg-success/30 disabled:opacity-50 font-medium border border-success/30 transition-all duration-200 flex items-center gap-2"
                   >
+                    {syncing && (
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    )}
                     {syncing ? 'Syncing...' : 'Sync from LeetCode'}
                   </button>
                 )}
@@ -262,23 +291,23 @@ export default function Profile() {
               </div>
               Progress Statistics
             </h2>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary-900/30 border border-primary-700/30 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-primary-400 font-code">{stats.totalSolved}</div>
                 <div className="text-sm text-textSecondary font-code">Total Solved</div>
               </div>
-              
+
               <div className="bg-accent-green/10 border border-accent-green/30 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-accent-green font-code">{stats.easySolved}</div>
                 <div className="text-sm text-textSecondary font-code">Easy</div>
               </div>
-              
+
               <div className="bg-accent-yellow/10 border border-accent-yellow/30 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-accent-yellow font-code">{stats.mediumSolved}</div>
                 <div className="text-sm text-textSecondary font-code">Medium</div>
               </div>
-              
+
               <div className="bg-accent-red/10 border border-accent-red/30 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-accent-red font-code">{stats.hardSolved}</div>
                 <div className="text-sm text-textSecondary font-code">Hard</div>
@@ -306,16 +335,14 @@ export default function Profile() {
               </h3>
               <div className="space-y-2">
                 <div className="text-sm text-textSecondary font-code">
-                  <span className="text-textMuted">Last active:</span> <span className="text-accent-cyan">{userData?.lastActive ? 
-                    new Date(userData.lastActive).toLocaleDateString() : 'Never'}</span>
+                  <span className="text-textMuted">Last active:</span> <span className="text-accent-cyan">{formatDate(userData?.lastActive)}</span>
                 </div>
                 <div className="text-sm text-textSecondary font-code">
-                  <span className="text-textMuted">Member since:</span> <span className="text-accent-cyan">{userData?.createdAt ? 
-                    new Date(userData.createdAt).toLocaleDateString() : 'Unknown'}</span>
+                  <span className="text-textMuted">Member since:</span> <span className="text-accent-cyan">{formatDate(userData?.createdAt)}</span>
                 </div>
                 {userData?.lastSyncedAt && (
                   <div className="text-sm text-textSecondary font-code">
-                    <span className="text-textMuted">Last LeetCode sync:</span> <span className="text-accent-cyan">{new Date(userData.lastSyncedAt).toLocaleDateString()}</span>
+                    <span className="text-textMuted">Last LeetCode sync:</span> <span className="text-accent-cyan">{formatDate(userData.lastSyncedAt)}</span>
                   </div>
                 )}
               </div>
