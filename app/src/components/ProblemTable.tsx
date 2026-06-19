@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Problem } from '@/types';
+import Link from 'next/link';
 
 interface ProblemTableProps {
     problems: Problem[];
@@ -110,6 +111,9 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
                             >
                                 Title <SortIcon field="title" />
                             </th>
+                            <th className="px-4 py-3 text-center font-semibold text-textSecondary w-24">
+                                LeetCode
+                            </th>
                             <th className="px-4 py-3 text-left font-semibold text-textSecondary">
                                 Difficulty
                             </th>
@@ -141,13 +145,27 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
                                         {problem.id}
                                     </td>
                                     <td className="px-4 py-3">
+                                        <Link
+                                            href={`/problem/${problem.slug}`}
+                                            className="text-text hover:text-accent-blue hover:underline transition-colors font-medium"
+                                        >
+                                            {problem.title}
+                                        </Link>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
                                         <a
                                             href={`https://leetcode.com/problems/${problem.slug}/`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-text hover:text-accent-blue transition-colors font-medium"
+                                            className="text-textMuted hover:text-accent-blue transition-colors inline-block"
+                                            title="View on LeetCode"
+                                            aria-label={`View ${problem.title} on LeetCode`}
                                         >
-                                            {problem.title}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                <polyline points="15 3 21 3 21 9"></polyline>
+                                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                                            </svg>
                                         </a>
                                     </td>
                                     <td className="px-4 py-3">

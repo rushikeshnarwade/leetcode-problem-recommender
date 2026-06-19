@@ -39,8 +39,8 @@ export interface LeetCodeContestData {
 export const fetchLeetCodeUserData = async (username: string): Promise<LeetCodeUserData | null> => {
   try {
     console.log('Fetching LeetCode data for username:', username);
-    // Use the public LeetCode stats API which doesn't have CORS issues
-    const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
+    // Use the public alfa-leetcode-api which doesn't have CORS issues
+    const response = await fetch(`https://alfa-leetcode-api.onrender.com/userProfile/${username}`);
     
     console.log('Response status:', response.status);
     
@@ -51,8 +51,8 @@ export const fetchLeetCodeUserData = async (username: string): Promise<LeetCodeU
     const data = await response.json();
     console.log('Raw API response:', data);
     
-    if (data.status === 'error') {
-      throw new Error(data.message || 'Unknown API error');
+    if (data.status === 'error' || data.errors) {
+      throw new Error(data.message || (data.errors && data.errors[0]?.message) || 'Unknown API error');
     }
     
     if (!data || typeof data.totalSolved === 'undefined') {

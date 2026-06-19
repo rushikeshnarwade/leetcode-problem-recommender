@@ -111,3 +111,118 @@ export const getSolvedProblems = (userId: string): string[] => {
     return [];
   }
 };
+
+/**
+ * Get a single problem by its slug
+ */
+export const getProblemBySlug = (slug: string): Problem | undefined => {
+  const problem = problemsData.find(p => p.slug === slug);
+  if (!problem) return undefined;
+
+  return {
+    ...problem,
+    difficulty: problem.difficulty as 'easy' | 'medium' | 'hard',
+    contestSlug: problem.contestSlug || undefined,
+    problemIndex: problem.problemIndex || undefined,
+    lastUpdated: new Date(),
+  };
+};
+
+/**
+ * Get related problems based on tags, difficulty, and rating
+ */
+export const getRelatedProblems = (currentSlug: string, limit: number = 5): Problem[] => {
+  const currentProblem = problemsData.find(p => p.slug === currentSlug);
+  if (!currentProblem) return [];
+
+  const scoredProblems = problemsData
+    .filter(p => p.slug !== currentSlug && !p.isPremium)
+    .map(p => {
+      let score = 0;
+
+      // 1. Shared Tags (High weight)
+      // Check if tags exist before filtering
+      const currentTags = currentProblem.tags || [];
+      const problemTags = p.tags || [];
+
+      const sharedTags = problemTags.filter((tag: string) => currentTags.includes(tag)).length;
+      score += sharedTags * 10;
+
+      // 2. Rating Proximity (Medium weight)
+      if (currentProblem.zerotracRating && p.zerotracRating) {
+        const ratingDiff = Math.abs(currentProblem.zerotracRating - p.zerotracRating);
+        if (ratingDiff <= 100) score += 5;
+        else if (ratingDiff <= 200) score += 3;
+        else if (ratingDiff <= 300) score += 1;
+      }
+
+      // 3. Same Difficulty (Low weight)
+      if (p.difficulty === currentProblem.difficulty) {
+        score += 2;
+      }
+
+      return { problem: p, score };
+    });
+
+  // Sort by score (descending) and take top N
+  return scoredProblems
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(item => ({
+      ...item.problem,
+      difficulty: item.problem.difficulty as 'easy' | 'medium' | 'hard',
+      contestSlug: item.problem.contestSlug || undefined,
+      problemIndex: item.problem.problemIndex || undefined,
+      lastUpdated: new Date(),
+    }));
+};
+
+/**
+ * Get the next problem by ID
+ */
+export const getNextProblem = (currentSlug: string): Problem | undefined => {
+  const currentProblem = problemsData.find(p => p.slug === currentSlug);
+  if (!currentProblem) return undefined;
+
+  // Sort problems by ID to ensure consistent order
+  const sortedProblems = [...problemsData]
+    .filter(p => !p.isPremium)
+    .sort((a, b) => a.id - b.id);
+
+  const currentIndex = sortedProblems.findIndex(p => p.id === currentProblem.id);
+  if (currentIndex === -1 || currentIndex === sortedProblems.length - 1) return undefined;
+
+  const nextProblem = sortedProblems[currentIndex + 1];
+  return {
+    ...nextProblem,
+    difficulty: nextProblem.difficulty as 'easy' | 'medium' | 'hard',
+    contestSlug: nextProblem.contestSlug || undefined,
+    problemIndex: nextProblem.problemIndex || undefined,
+    lastUpdated: new Date(),
+  };
+};
+
+/**
+ * Get the previous problem by ID
+ */
+export const getPreviousProblem = (currentSlug: string): Problem | undefined => {
+  const currentProblem = problemsData.find(p => p.slug === currentSlug);
+  if (!currentProblem) return undefined;
+
+  // Sort problems by ID to ensure consistent order
+  const sortedProblems = [...problemsData]
+    .filter(p => !p.isPremium)
+    .sort((a, b) => a.id - b.id);
+
+  const currentIndex = sortedProblems.findIndex(p => p.id === currentProblem.id);
+  if (currentIndex <= 0) return undefined;
+
+  const prevProblem = sortedProblems[currentIndex - 1];
+  return {
+    ...prevProblem,
+    difficulty: prevProblem.difficulty as 'easy' | 'medium' | 'hard',
+    contestSlug: prevProblem.contestSlug || undefined,
+    problemIndex: prevProblem.problemIndex || undefined,
+    lastUpdated: new Date(),
+  };
+};
