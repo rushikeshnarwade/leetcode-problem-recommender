@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export const metadata: Metadata = {
   title: "LeetCode Problem Recommender",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="font-primary antialiased">
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
         <AuthProvider>
           <div className="min-h-screen bg-background text-text transition-colors duration-300">
             <Navbar />

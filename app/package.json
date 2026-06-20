@@ -12,6 +12,7 @@
     "clean": "rmdir /s /q .next build 2>nul || rm -rf .next build 2>/dev/null || echo 'Cleaned'"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.9",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -28,7 +29,13 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.5"
   },
-  "keywords": ["leetcode", "problem-recommender", "nextjs", "firebase", "react"],
+  "keywords": [
+    "leetcode",
+    "problem-recommender",
+    "nextjs",
+    "firebase",
+    "react"
+  ],
   "author": "",
   "license": "MIT"
 }
