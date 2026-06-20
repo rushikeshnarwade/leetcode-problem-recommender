@@ -228,6 +228,9 @@ async function fetchAllProblems() {
     // Sort problems by ID
     allProblems.sort((a, b) => a.id - b.id);
 
+    // Filter out premium problems
+    const freeProblems = allProblems.filter(p => !p.isPremium);
+
     // Write to JSON file
     const outputPath = path.join(__dirname, '..', 'app', 'src', 'data', 'problems.json');
 
@@ -237,26 +240,26 @@ async function fetchAllProblems() {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    fs.writeFileSync(outputPath, JSON.stringify(allProblems, null, 2));
+    fs.writeFileSync(outputPath, JSON.stringify(freeProblems, null, 2));
 
-    console.log(`💾 Saved ${allProblems.length} problems to: ${outputPath}`);
+    console.log(`💾 Saved ${freeProblems.length} problems to: ${outputPath}`);
 
     // Print some statistics
-    const easyCount = allProblems.filter(p => p.difficulty === 'easy').length;
-    const mediumCount = allProblems.filter(p => p.difficulty === 'medium').length;
-    const hardCount = allProblems.filter(p => p.difficulty === 'hard').length;
+    const easyCount = freeProblems.filter(p => p.difficulty === 'easy').length;
+    const mediumCount = freeProblems.filter(p => p.difficulty === 'medium').length;
+    const hardCount = freeProblems.filter(p => p.difficulty === 'hard').length;
     const premiumCount = allProblems.filter(p => p.isPremium).length;
 
     console.log('\n📊 Statistics:');
     console.log(`   Easy: ${easyCount}`);
     console.log(`   Medium: ${mediumCount}`);
     console.log(`   Hard: ${hardCount}`);
-    console.log(`   Premium: ${premiumCount}`);
-    console.log(`   Free: ${allProblems.length - premiumCount}`);
+    console.log(`   Premium (Skipped): ${premiumCount}`);
+    console.log(`   Free: ${freeProblems.length}`);
 
     // Get unique tags
     const allTags = new Set();
-    allProblems.forEach(problem => {
+    freeProblems.forEach(problem => {
       problem.tags.forEach(tag => allTags.add(tag));
     });
 
@@ -317,7 +320,10 @@ async function fetchProblemsFromAlphaAPI() {
             problemIndex: null
           }));
 
-          resolve(formattedProblems);
+          // Filter out premium problems
+          const freeProblems = formattedProblems.filter(p => !p.isPremium);
+
+          resolve(freeProblems);
         } catch (error) {
           reject(new Error('Failed to parse Alpha API response: ' + error.message));
         }
