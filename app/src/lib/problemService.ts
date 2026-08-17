@@ -1,11 +1,7 @@
-import { Problem } from '@/types';
+import { Problem, FilterOptions } from '@/types';
 import problemsData from '@/data/problems.json';
 
-export interface FilterOptions {
-  ratingRange: [number, number];
-  searchQuery: string;
-  selectedTags: string[];
-}
+
 
 /**
  * Get all unique tags from problems

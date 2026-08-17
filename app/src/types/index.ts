@@ -12,6 +12,12 @@ export interface Problem {
   problemIndex?: string;
 }
 
+export interface FilterOptions {
+  ratingRange: [number, number];
+  searchQuery: string;
+  selectedTags: string[];
+}
+
 export interface User {
   uid: string;
   email: string;
@@ -20,6 +26,7 @@ export interface User {
   rating: number;
   solvedProblems: string[];
   manuallyMarkedAsSolved?: string[];
+  savedFilters?: FilterOptions;
   leetcodeStats?: {
     totalSolved: number;
     easySolved: number;

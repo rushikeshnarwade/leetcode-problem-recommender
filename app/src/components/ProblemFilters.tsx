@@ -2,12 +2,9 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { getAllTags } from '@/lib/problemService';
+import { FilterOptions } from '@/types';
 
-export interface FilterOptions {
-  ratingRange: [number, number];
-  searchQuery: string;
-  selectedTags: string[];
-}
+
 
 interface ProblemFiltersProps {
   filters: FilterOptions;

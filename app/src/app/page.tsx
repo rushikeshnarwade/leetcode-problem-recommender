@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Problem, User as UserType } from '@/types';
+import { Problem, User as UserType, FilterOptions } from '@/types';
 import ProblemTable from '@/components/ProblemTable';
 import ProblemFilters from '@/components/ProblemFilters';
-import { getFilteredProblems, markProblemAsSolved, getSolvedProblems, FilterOptions } from '@/lib/problemService';
-import { doc, getDoc } from 'firebase/firestore';
+import { getFilteredProblems, markProblemAsSolved, getSolvedProblems } from '@/lib/problemService';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 
@@ -22,6 +22,20 @@ export default function Home() {
     searchQuery: '',
     selectedTags: []
   });
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
+
+  // Load filters from local storage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('leetcode_recommender_filters');
+      if (saved) {
+        setFilters(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error parsing filters from local storage:', error);
+    }
+    setFiltersLoaded(true);
+  }, []);
 
   // Fetch user data when user logs in
   useEffect(() => {
@@ -40,6 +54,10 @@ export default function Home() {
             const firebaseSolved = data.solvedProblems || [];
             const manuallyMarked = data.manuallyMarkedAsSolved || [];
             setSolvedSlugs([...new Set([...localSolved, ...firebaseSolved, ...manuallyMarked])]);
+
+            if (data.savedFilters) {
+              setFilters(data.savedFilters);
+            }
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -66,6 +84,22 @@ export default function Home() {
 
     fetchProblems();
   }, [filters]);
+
+  // Save filters to local storage and Firestore when they change
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    
+    localStorage.setItem('leetcode_recommender_filters', JSON.stringify(filters));
+
+    const timeoutId = setTimeout(() => {
+      if (user) {
+        updateDoc(doc(db, 'users', user.uid), { savedFilters: filters })
+          .catch(err => console.error('Error saving filters to DB:', err));
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [filters, user, filtersLoaded]);
 
   const handleToggleSolved = async (slug: string, solved: boolean) => {
     if (!user) return;
