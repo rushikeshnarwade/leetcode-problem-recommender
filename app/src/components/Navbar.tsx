@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from 'firebase/auth';
@@ -8,6 +8,7 @@ import { auth } from '@/lib/firebase';
 
 const Navbar = () => {
   const { user } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -20,15 +21,25 @@ const Navbar = () => {
   return (
     <nav className="glass-elevated sticky top-0 z-50 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center gap-2 min-h-16">
           <Link 
             href="/" 
-            className="text-xl font-bold text-accent-blue hover:text-primary-400 transition-all duration-200 font-code tracking-tight"
+            className="min-w-0 text-sm sm:text-xl font-bold text-accent-blue hover:text-primary-400 transition-all duration-200 font-code tracking-tight"
           >
             &lt;/Problem Recommender&gt;
           </Link>
 
-          <div className="flex items-center space-x-8">
+          <button
+            type="button"
+            className="md:hidden min-h-11 min-w-11 rounded border border-border text-text"
+            aria-label="Toggle navigation menu"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMenuOpen(open => !open)}
+          >
+            ☰
+          </button>
+          <div className="hidden md:flex items-center space-x-8">
             {user ? (
               <>
                 <Link 
@@ -76,6 +87,21 @@ const Navbar = () => {
             )}
           </div>
         </div>
+        {menuOpen && (
+          <div id="mobile-navigation" className="md:hidden flex flex-col gap-1 pb-3" onClick={() => setMenuOpen(false)}>
+            {user ? (
+              <>
+                <Link href="/" className="px-3 py-3 text-textSecondary">Home</Link>
+                <Link href="/profile" className="px-3 py-3 text-textSecondary">Profile</Link>
+                <Link href="/settings" className="px-3 py-3 text-textSecondary">Settings</Link>
+                <Link href="/about" className="px-3 py-3 text-textSecondary">About</Link>
+                <button onClick={handleSignOut} className="px-3 py-3 text-left text-textSecondary">Sign Out</button>
+              </>
+            ) : (
+              <Link href="/login" className="px-3 py-3 text-textSecondary">Sign In</Link>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

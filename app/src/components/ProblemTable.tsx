@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Problem } from '@/types';
 import Link from 'next/link';
+import ProblemCard from './ProblemCard';
 
 interface ProblemTableProps {
     problems: Problem[];
@@ -44,6 +45,9 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
     }, [problems, sortField, sortDirection]);
 
     const totalPages = Math.ceil(sortedProblems.length / itemsPerPage);
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [problems]);
     const paginatedProblems = sortedProblems.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
@@ -94,8 +98,20 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
                 </span>
             </div>
 
+            <div className="grid gap-3 sm:hidden">
+                {paginatedProblems.map(problem => (
+                    <ProblemCard
+                        key={problem.slug}
+                        problem={problem}
+                        isSolved={solvedSlugs.includes(problem.slug)}
+                        onToggleSolved={onToggleSolved}
+                        showSolvedToggle={showSolvedToggle}
+                    />
+                ))}
+            </div>
+
             {/* Table */}
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="hidden sm:block overflow-x-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
                     <thead className="bg-surface border-b border-border">
                         <tr>
@@ -197,7 +213,9 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
                                         <td className="px-4 py-3 text-center">
                                             <button
                                                 onClick={() => onToggleSolved?.(problem.slug, !isSolved)}
-                                                className={`w-6 h-6 rounded-full border-2 transition-all ${isSolved
+                                                aria-label={`${isSolved ? 'Mark as unsolved' : 'Mark as solved'}: ${problem.title}`}
+                                                aria-pressed={isSolved}
+                                                className={`w-10 h-10 rounded-full border-2 transition-all ${isSolved
                                                     ? 'bg-green-500 border-green-500 text-white'
                                                     : 'border-border hover:border-green-400'
                                                     }`}
@@ -215,7 +233,7 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4">
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
                     <button
                         onClick={() => setCurrentPage(1)}
                         disabled={currentPage === 1}
@@ -232,7 +250,7 @@ const ProblemTable: React.FC<ProblemTableProps> = ({
                     </button>
 
                     {/* Page numbers */}
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap justify-center gap-1">
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                             let pageNum: number;
                             if (totalPages <= 5) {

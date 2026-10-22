@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Problem, User as UserType, FilterOptions } from '@/types';
 import ProblemTable from '@/components/ProblemTable';
 import ProblemFilters from '@/components/ProblemFilters';
-import { getFilteredProblems, markProblemAsSolved, getSolvedProblems } from '@/lib/problemService';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getFilteredProblems, getSolvedProblems } from '@/lib/problemService';
+import { arrayRemove, arrayUnion, deleteField, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import Link from 'next/link';
 
 export default function Home() {
   const { user } = useAuth();
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<UserType | null>(null);
   const [userRating, setUserRating] = useState(1500);
   const [solvedSlugs, setSolvedSlugs] = useState<string[]>([]);
+  const [progressError, setProgressError] = useState('');
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     ratingRange: [800, 3500],
     searchQuery: '',
@@ -37,35 +37,46 @@ export default function Home() {
     setFiltersLoaded(true);
   }, []);
 
-  // Fetch user data when user logs in
+  // Keep progress current across devices and migrate progress saved by older versions.
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
+    setSolvedSlugs([]);
+    if (!user) return;
+
+    const userRef = doc(db, 'users', user.uid);
+    let migrationStarted = false;
+    let filtersInitialized = false;
+    return onSnapshot(userRef, async snapshot => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data() as UserType;
+      setUserRating(data.leetcodeContestStats?.rating || 1500);
+      if (!filtersInitialized) {
+        filtersInitialized = true;
+        if (data.savedFilters) setFilters(data.savedFilters);
+        setLoadedUserId(user.uid);
+      }
+      const remoteSolved = data.solvedProblems || [];
+      const legacySolved = data.manuallyMarkedAsSolved || [];
+      const localSolved = getSolvedProblems(user.uid);
+      const toMigrate = [...new Set([...legacySolved, ...localSolved])];
+      setSolvedSlugs([...new Set([...remoteSolved, ...toMigrate])]);
+
+      if (!migrationStarted && (toMigrate.length || data.manuallyMarkedAsSolved)) {
+        migrationStarted = true;
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const data = userDoc.data() as UserType;
-            setUserData(data);
-            const rating = data.leetcodeContestStats?.rating || 1500;
-            setUserRating(rating);
-
-            // Load solved problems from localStorage and Firebase
-            const localSolved = getSolvedProblems(user.uid);
-            const firebaseSolved = data.solvedProblems || [];
-            const manuallyMarked = data.manuallyMarkedAsSolved || [];
-            setSolvedSlugs([...new Set([...localSolved, ...firebaseSolved, ...manuallyMarked])]);
-
-            if (data.savedFilters) {
-              setFilters(data.savedFilters);
-            }
-          }
+          await updateDoc(userRef, {
+            ...(toMigrate.length ? { solvedProblems: arrayUnion(...toMigrate) } : {}),
+            manuallyMarkedAsSolved: deleteField(),
+          });
+          localStorage.removeItem(`solved_${user.uid}`);
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          setProgressError('Could not sync saved progress. Please check your connection.');
+          console.error('Error migrating solved problems:', error);
         }
       }
-    };
-
-    fetchUserData();
+    }, error => {
+      setProgressError('Could not load saved progress. Please check your connection.');
+      console.error('Error loading user data:', error);
+    });
   }, [user]);
 
   // Fetch problems when filters change
@@ -87,7 +98,7 @@ export default function Home() {
 
   // Save filters to local storage and Firestore when they change
   useEffect(() => {
-    if (!filtersLoaded) return;
+    if (!filtersLoaded || (user && loadedUserId !== user.uid)) return;
     
     localStorage.setItem('leetcode_recommender_filters', JSON.stringify(filters));
 
@@ -99,17 +110,17 @@ export default function Home() {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [filters, user, filtersLoaded]);
+  }, [filters, user, filtersLoaded, loadedUserId]);
 
   const handleToggleSolved = async (slug: string, solved: boolean) => {
     if (!user) return;
-
+    setProgressError('');
     try {
-      if (solved) {
-        await markProblemAsSolved(user.uid, slug);
-        setSolvedSlugs(prev => [...prev, slug]);
-      }
+      await updateDoc(doc(db, 'users', user.uid), {
+        solvedProblems: solved ? arrayUnion(slug) : arrayRemove(slug),
+      });
     } catch (error) {
+      setProgressError('Could not save solved status. Please try again.');
       console.error('Error updating solved status:', error);
     }
   };
@@ -127,6 +138,7 @@ export default function Home() {
         />
 
         {/* Problems Table */}
+        {progressError && <p role="alert" className="mb-4 text-red-400">{progressError}</p>}
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3 text-textSecondary">

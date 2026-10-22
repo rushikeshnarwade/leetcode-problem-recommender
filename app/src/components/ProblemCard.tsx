@@ -38,7 +38,7 @@ const ProblemCard: React.FC<ProblemCardProps> = ({
       
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="font-semibold text-text truncate text-lg font-code tracking-tight group-hover:text-accent-cyan transition-colors duration-200">
+          <h3 className="min-w-0 font-semibold text-text break-words text-lg font-code tracking-tight group-hover:text-accent-cyan transition-colors duration-200">
             {problem.title}
           </h3>
           {problem.isPremium && (
@@ -113,6 +113,8 @@ const ProblemCard: React.FC<ProblemCardProps> = ({
                   : 'bg-surface hover:bg-surfaceHover text-textSecondary border-border hover:border-borderLight hover:text-accent-cyan'
               }`}
               title={isSolved ? 'Mark as unsolved' : 'Mark as solved'}
+              aria-label={`${isSolved ? 'Mark as unsolved' : 'Mark as solved'}: ${problem.title}`}
+              aria-pressed={isSolved}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

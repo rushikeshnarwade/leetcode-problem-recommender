@@ -80,28 +80,13 @@ export const getFilteredProblems = async (
 };
 
 /**
- * Mark a problem as solved (stored in localStorage)
- */
-export const markProblemAsSolved = async (userId: string, problemSlug: string): Promise<void> => {
-  try {
-    const key = `solved_${userId}`;
-    const solvedProblems = JSON.parse(localStorage.getItem(key) || '[]');
-    if (!solvedProblems.includes(problemSlug)) {
-      solvedProblems.push(problemSlug);
-      localStorage.setItem(key, JSON.stringify(solvedProblems));
-    }
-  } catch (error) {
-    console.error('Error marking problem as solved:', error);
-  }
-};
-
-/**
- * Get solved problems for a user from localStorage
+ * Read progress saved by older versions so it can be migrated to Firestore.
  */
 export const getSolvedProblems = (userId: string): string[] => {
   try {
     const key = `solved_${userId}`;
-    return JSON.parse(localStorage.getItem(key) || '[]');
+    const value: unknown = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(value) ? value.filter((slug): slug is string => typeof slug === 'string') : [];
   } catch (error) {
     console.error('Error getting solved problems:', error);
     return [];

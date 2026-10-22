@@ -37,7 +37,7 @@ An intelligent problem recommendation system that helps developers practice codi
 ### 🔗 **LeetCode Integration** 
 - **Direct Problem Links**: One-click access to solve problems on LeetCode
 - **Real Data**: Authentic acceptance rates, difficulty levels, and tags
-- **Progress Tracking**: Mark problems as solved locally
+- **Progress Tracking**: Signed-in progress syncs through Firestore across devices
 - **Profile Sync**: Optional LeetCode account integration
 
 ## 💻 Tech Stack
@@ -144,7 +144,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
 1. **Problems Database**: 3,662+ problems stored locally in JSON format
 2. **Client-Side Filtering**: All filtering happens in the browser for instant results  
 3. **Search & Tags**: Real-time search across titles and 72+ tag categories
-4. **Progress Tracking**: Local storage for solved problems (Firebase optional)
+4. **Progress Tracking**: Firestore stores signed-in solved problems; older browser-only progress is migrated on the next visit
 5. **LeetCode Integration**: Direct links to problems on LeetCode platform
 
 ### Key Features
