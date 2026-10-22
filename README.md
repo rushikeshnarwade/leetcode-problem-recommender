@@ -9,7 +9,7 @@ An intelligent problem recommendation system that helps developers practice codi
 
 ## 🚀 **Live Demo**
 
-**🌐 [https://leetcode-problem-recommeder.web.app](https://leetcode-problem-recommeder.web.app)**
+**🌐 [https://problem-recommender.web.app](https://problem-recommender.web.app)**
 
 ## ✨ Features
 
@@ -100,7 +100,7 @@ npm run dev
 
 ### 4. Access Application
 - **Local Development**: http://localhost:3000
-- **Live Demo**: https://leetcode-problem-recommeder.web.app
+- **Live Demo**: https://problem-recommender.web.app
 
 ## 🔄 Update Problems Database
 
