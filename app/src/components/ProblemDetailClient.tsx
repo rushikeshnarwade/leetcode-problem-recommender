@@ -47,7 +47,7 @@ export default function ProblemDetailClient({ problem, slug, relatedProblems, ne
         <div className="min-h-screen bg-background text-text">
             <div className="max-w-4xl mx-auto px-4 py-8">
                 {/* Navigation Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
                     <Link
                         href="/"
                         className="inline-flex items-center text-textSecondary hover:text-text transition-colors"
@@ -55,13 +55,13 @@ export default function ProblemDetailClient({ problem, slug, relatedProblems, ne
                         <span className="mr-2">←</span> Back to Problems
                     </Link>
 
-                    <div className="flex gap-4">
+                    <div className="flex items-center justify-between gap-4 sm:justify-end">
                         {prevProblem ? (
                             <Link
                                 href={`/problem/${prevProblem.slug}`}
                                 className="inline-flex items-center text-textSecondary hover:text-text transition-colors text-sm"
                             >
-                                <span className="mr-1">←</span> Prev: {prevProblem.id}. {prevProblem.title}
+                                <span className="mr-1">←</span> Prev<span className="hidden sm:inline">: {prevProblem.id}. {prevProblem.title}</span>
                             </Link>
                         ) : (
                             <span className="text-textMuted text-sm cursor-not-allowed opacity-50">
@@ -69,14 +69,14 @@ export default function ProblemDetailClient({ problem, slug, relatedProblems, ne
                             </span>
                         )}
 
-                        <span className="text-border">|</span>
+                        <span className="hidden sm:inline text-border">|</span>
 
                         {nextProblem ? (
                             <Link
                                 href={`/problem/${nextProblem.slug}`}
                                 className="inline-flex items-center text-textSecondary hover:text-text transition-colors text-sm"
                             >
-                                Next: {nextProblem.id}. {nextProblem.title} <span className="ml-1">→</span>
+                                Next<span className="hidden sm:inline">: {nextProblem.id}. {nextProblem.title}</span> <span className="ml-1">→</span>
                             </Link>
                         ) : (
                             <span className="text-textMuted text-sm cursor-not-allowed opacity-50">
@@ -86,12 +86,12 @@ export default function ProblemDetailClient({ problem, slug, relatedProblems, ne
                     </div>
                 </div>
 
-                <div className="bg-surface border border-border rounded-lg p-8 shadow-lg mb-8">
-                    <div className="flex items-start justify-between mb-6">
-                        <div>
-                            <div className="flex items-center gap-3 mb-2">
+                <div className="bg-surface border border-border rounded-lg p-4 sm:p-8 shadow-lg mb-8">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+                        <div className="min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                                 <span className="font-mono text-textMuted text-lg">#{problem.id}</span>
-                                <h1 className="text-3xl font-bold text-text">{problem.title}</h1>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-text break-words">{problem.title}</h1>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className={`px-3 py-1 rounded text-sm font-medium ${getDifficultyClass(problem.difficulty)}`}>
@@ -107,7 +107,7 @@ export default function ProblemDetailClient({ problem, slug, relatedProblems, ne
                             href={`https://leetcode.com/problems/${problem.slug}/`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-accent-blue hover:bg-opacity-90 text-white px-4 py-2 rounded-md transition-colors font-medium"
+                            className="flex w-full sm:w-auto shrink-0 items-center justify-center gap-2 bg-accent-blue hover:bg-opacity-90 text-white px-4 py-2 rounded-md transition-colors font-medium"
                         >
                             Solve on LeetCode
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
